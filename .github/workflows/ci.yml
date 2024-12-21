@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: install dependencies
+      run: |
+          sudo apt update
+          sudo apt install -y \
+            build-essential \
+            cmake \
+            pkg-config \
+            libgtkmm-3.0-dev \
+            cppcheck
+    - uses: actions/checkout@v4
+    - name: configure
+      run: cmake .
+    
+  build:
+    needs: install
+    runs-on: ubuntu-latest
+    steps:
+    - name: compile
+      run: make pipeline_target --jobs=24
+    
+  cppcheck:
+    name: Static code analysis
+    needs: install
+    runs-on: ubuntu-latest
+    steps:
+    - name: cppcheck
+      run: cppcheck -j 24 --enable=all --force --inline-suppr $(find . -type d -exec echo -I{} \;) --suppress=missingIncludeSystem ./src
+
+  cpplint:
+    name: Linting
+    needs: install
+    runs-on: ubuntu-latest
+    steps:
+      - name: cpplint
+        run: cpplint *.cpp
