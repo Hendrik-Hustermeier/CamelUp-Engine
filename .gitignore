@@ -30,3 +30,8 @@
 *.exe
 *.out
 *.app
+
+# VS Directory
+CamelUp-Engine/.vs
+CamelUp-Engine/CamelUp-Engine/x64
+CamelUp-Engine/x64
